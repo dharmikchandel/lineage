@@ -1,0 +1,135 @@
+{
+  "story": "'Bill Gates' 11 rules' (written by Charles J. Sykes)",
+  "verified_on": "2026-10-17",
+  "verification_note": "Checked against the cited pages on 2026-10-17. Snopes pages return HTTP 402 to our fetcher; the Snopes 2000 debunk is taken as relayed by AFP. The salary-figure variant ($40,000 vs $60,000) mentioned in our brief could not be confirmed by any fact-check, so it is NOT seeded. The real author is modelled as an established Source (not a Claim), so a version re-attributed to him is recognised as a correction.",
+  "publishers": [
+    { "name": "Daily Mail", "url": "https://www.dailymail.co.uk", "kind": "outlet" }
+  ],
+  "sources": [
+    { "name": "Charles J. Sykes", "url": null, "kind": "author" }
+  ],
+  "claims": [
+    {
+      "id": "gates-rules",
+      "text": "Bill Gates wrote a list of rules that kids will not learn in school, beginning 'Life is not fair; get used to it.'",
+      "first_seen": "1998",
+      "attributed_to": "Bill Gates",
+      "evidence": "Tes (2008-07-04): the list has circulated online for over a decade. AFP via BOOM (2020-02-24): the Gates attribution has been around for at least 20 years; one of the first debunks was by Snopes in 2000."
+    },
+    {
+      "id": "gates-speech",
+      "text": "Bill Gates gave a speech to high school students listing 11 rules they will not learn in school, starting with 'Life is not fair; get used to it.'",
+      "first_seen": "2008-07",
+      "attributed_to": "Bill Gates",
+      "evidence": "Tes (2008-07-04): a Daily Mail columnist attributed a 'recent speech to American high school pupils' to Bill Gates and reprinted 11 rules. AFP via BOOM (2020-02-24) checks the claim that Gates delivered the rules in a high school speech."
+    },
+    {
+      "id": "gates-nerds",
+      "text": "Bill Gates said: 'Be nice to nerds. Chances are you'll end up working for one.'",
+      "first_seen": "2019-08",
+      "attributed_to": "Bill Gates",
+      "evidence": "Check Your Fact (2019-08-30) checks this single line attributed to Gates; Sykes confirmed to the DCNF that the quote originated with him, and his book has 'Be nice to nerds. You may end up working for them.'"
+    }
+  ],
+  "sightings": [
+    {
+      "id": "s-gates-email",
+      "claim": "gates-rules",
+      "publisher": null,
+      "url": null,
+      "date": "1998",
+      "date_note": "CONFLICT: Tes (2008) says the list had circulated online 'for over a decade' (so by 1998); AFP (2020) says 'at least 20 years', with Snopes debunking it in 2000.",
+      "snippet": "Forwarded email and web posts presenting the rules list as written by Bill Gates.",
+      "reported_by": "https://www.boomlive.in/world/did-bill-gates-pen-a-list-of-life-lessons-for-high-school-kids-6979"
+    },
+    {
+      "id": "s-gates-dailymail",
+      "claim": "gates-speech",
+      "publisher": "Daily Mail",
+      "url": null,
+      "date": "2008-07",
+      "date_note": "On or before 2008-07-04 (date of the Tes article). Tes names the columnist; the original column URL is not held.",
+      "snippet": "Newspaper column reprinting 11 rules as a recent Bill Gates speech to American high school pupils.",
+      "reported_by": "https://www.tes.com/news/they-said-40"
+    },
+    {
+      "id": "s-gates-nerds-social",
+      "claim": "gates-nerds",
+      "publisher": null,
+      "url": null,
+      "date": "2019-08",
+      "date_note": "On or before 2019-08-30 (date of the Check Your Fact article).",
+      "snippet": "Social media posts quoting the 'be nice to nerds' line as Bill Gates.",
+      "reported_by": "https://checkyourfact.com/2019/08/30/fact-check-bill-gates-nice-nerds-chances-working/"
+    }
+  ],
+  "mutations": [
+    {
+      "child": "gates-speech",
+      "parent": "gates-rules",
+      "types": ["exaggeration"],
+      "before_text": "a list of rules written by Bill Gates",
+      "after_text": "11 rules delivered by Bill Gates in a speech to high school students",
+      "confidence": 0.6,
+      "note": "Adds an invented speech. No enum type fits exactly; 'exaggeration' is the closest. Flagged for owner review in DECISIONS.md."
+    },
+    {
+      "child": "gates-nerds",
+      "parent": "gates-rules",
+      "types": ["context_stripped"],
+      "before_text": "a full list of rules for students",
+      "after_text": "one line from the list, quoted alone",
+      "confidence": 0.5,
+      "note": "A truncated list: one rule quoted on its own. context_stripped is best-effort."
+    }
+  ],
+  "origins": [
+    {
+      "claim": "gates-rules",
+      "target_label": "Source",
+      "target": "Charles J. Sykes",
+      "confidence": 0.95,
+      "established": true,
+      "evidence_url": "https://www.boomlive.in/world/did-bill-gates-pen-a-list-of-life-lessons-for-high-school-kids-6979",
+      "note": "AFP: the list is by US author Charles J. Sykes (first on his Milwaukee radio show; in his 1995 book 'Dumbing Down Our Kids' and his 2007 book '50 Rules Kids Won't Learn in School'). CONFLICT on first publication: Tes (2008) says a 1996 San Diego Union-Tribune article."
+    }
+  ],
+  "fact_checks": [
+    {
+      "claim": "gates-rules",
+      "url": "https://www.snopes.com/language/document/liferule.htm",
+      "publisher": "Snopes (as cited by AFP)",
+      "date": "2000",
+      "verdict": "misattributed",
+      "basis": "misattributed",
+      "summary": "One of the first debunks (2000): the list did not come from Bill Gates. Page not readable by our fetcher; finding relayed by AFP."
+    },
+    {
+      "claim": "gates-speech",
+      "url": "https://www.boomlive.in/world/did-bill-gates-pen-a-list-of-life-lessons-for-high-school-kids-6979",
+      "publisher": "AFP (via BOOM)",
+      "date": "2020-02-24",
+      "verdict": "misattributed",
+      "basis": "misattributed",
+      "summary": "Gates was in no way involved in creating the list; its author is Charles J. Sykes."
+    },
+    {
+      "claim": "gates-speech",
+      "url": "https://www.tes.com/news/they-said-40",
+      "publisher": "Tes",
+      "date": "2008-07-04",
+      "verdict": "misattributed",
+      "basis": "misattributed",
+      "summary": "The 'speech' is a notorious urban myth; the list is Charles J. Sykes's."
+    },
+    {
+      "claim": "gates-nerds",
+      "url": "https://checkyourfact.com/2019/08/30/fact-check-bill-gates-nice-nerds-chances-working/",
+      "publisher": "Check Your Fact",
+      "date": "2019-08-30",
+      "verdict": "misattributed",
+      "basis": "misattributed",
+      "summary": "Sykes confirmed the quote originated with him, not Gates. (Rating label not read directly; conclusion per the article as relayed in search results.)"
+    }
+  ]
+}
