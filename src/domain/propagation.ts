@@ -31,6 +31,8 @@ export interface PathHop {
   /** The Linker's confidence that this edge is real. */
   confidence: number;
   directionCertain: boolean;
+  /** Mutation labels on this edge that are best-effort guesses (e.g. context_stripped). */
+  lowConfidenceTypes?: MutationType[] | null;
 }
 
 export interface PathFactCheck {

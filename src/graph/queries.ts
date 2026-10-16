@@ -132,7 +132,8 @@ WITH path, chk, f, collect(src.name) AS establishedSources
 RETURN [n IN nodes(path) | {id: n.id, text: n.text, attributedTo: n.attributed_to}] AS claims,
        [r IN relationships(path) | {
           types: r.types, beforeText: r.before_text, afterText: r.after_text,
-          confidence: r.confidence, directionCertain: r.direction_certain
+          confidence: r.confidence, directionCertain: r.direction_certain,
+          lowConfidenceTypes: r.low_confidence_types
        }] AS hops,
        {url: f.url, publisher: f.publisher, date: f.date, verdict: chk.verdict, basis: chk.basis} AS factCheck,
        establishedSources,
@@ -207,19 +208,18 @@ export async function q6PublisherSpread(claimIds: string[]) {
 // ---------------------------------------------------------------------------
 // Nearest versions (used by the Linker when choosing parents)
 // ---------------------------------------------------------------------------
-export const ANCESTORS_AMONG = `
-// Of these matched claims, which are ancestors of another matched claim?
-// Those are older links in the same chain; the new claim should attach to the
-// nearest version, not to every generation above it.
+export const SAME_CHAIN_PAIRS = `
+// Which of these matched claims lie on the same chain (one is an ancestor of the
+// other)? Linking a new claim to every generation of one chain would be redundant,
+// so the Linker keeps only the closest match per chain.
 MATCH (newer:Claim)-[:MUTATED_FROM*1..]->(older:Claim)
 WHERE newer.id IN $ids AND older.id IN $ids
-RETURN DISTINCT older.id AS id
+RETURN DISTINCT newer.id AS newer, older.id AS older
 `;
 
-export async function ancestorsAmong(ids: string[]): Promise<Set<string>> {
-  if (ids.length < 2) return new Set();
-  const rows = await read<{ id: string }>(ANCESTORS_AMONG, { ids });
-  return new Set(rows.map((r) => r.id));
+export async function sameChainPairs(ids: string[]): Promise<{ newer: string; older: string }[]> {
+  if (ids.length < 2) return [];
+  return read<{ newer: string; older: string }>(SAME_CHAIN_PAIRS, { ids });
 }
 
 // ---------------------------------------------------------------------------
@@ -233,4 +233,92 @@ export async function graphCounts() {
             count(DISTINCT CASE WHEN c.embedding IS NOT NULL THEN c END) AS withEmbedding`,
   );
   return rows[0] ?? { claims: 0, factChecks: 0, withEmbedding: 0 };
+}
+
+// ---------------------------------------------------------------------------
+// Lineage view: everything needed to draw one story family in the UI
+// ---------------------------------------------------------------------------
+export const VIEW_CLAIMS = `
+// Each claim in the family, with every sighting (who posted it, when) and any
+// fact-check made directly on it.
+MATCH (c:Claim) WHERE c.id IN $ids
+OPTIONAL MATCH (s:Sighting)-[:SIGHTING_OF]->(c)
+OPTIONAL MATCH (s)-[:PUBLISHED_BY]->(p:Publisher)
+WITH c, collect(CASE WHEN s IS NULL THEN NULL ELSE {
+       publisher: p.name, publisherKind: p.kind, date: s.date, dateNote: s.date_note,
+       url: s.url, reportedBy: s.reported_by, synthetic: s.synthetic
+     } END) AS sightings
+OPTIONAL MATCH (c)-[chk:CHECKED_BY]->(f:FactCheck)
+RETURN c.id AS id, c.text AS text, c.first_seen AS firstSeen, c.synthetic AS synthetic,
+       c.attributed_to AS attributedTo, sightings,
+       collect(CASE WHEN f IS NULL THEN NULL ELSE {
+         publisher: f.publisher, url: f.url, date: f.date, verdict: chk.verdict, basis: chk.basis, summary: f.summary
+       } END) AS factChecks
+`;
+
+export const VIEW_EDGES = `
+// Every MUTATED_FROM edge inside the family, with its provenance.
+MATCH (child:Claim)-[r:MUTATED_FROM]->(parent:Claim)
+WHERE child.id IN $ids AND parent.id IN $ids
+RETURN child.id AS child, parent.id AS parent, r.types AS types,
+       r.before_text AS beforeText, r.after_text AS afterText, r.confidence AS confidence,
+       r.direction_certain AS directionCertain, r.low_confidence_types AS lowConfidenceTypes,
+       r.asserted_by AS assertedBy, r.note AS note
+`;
+
+export const VIEW_ORIGINS = `
+// Every candidate origin attached to a claim in the family.
+MATCH (c:Claim)-[o:ORIGINATES_FROM]->(src)
+WHERE c.id IN $ids
+RETURN c.id AS claimId, src.name AS name, labels(src)[0] AS label, src.kind AS kind,
+       o.confidence AS confidence, o.evidence_url AS evidenceUrl, o.established AS established, o.note AS note
+`;
+
+export interface ViewClaim {
+  id: string;
+  text: string;
+  firstSeen: string | null;
+  synthetic: boolean;
+  attributedTo: string | null;
+  sightings: {
+    publisher: string | null;
+    publisherKind: string | null;
+    date: string | null;
+    dateNote: string | null;
+    url: string | null;
+    reportedBy: string | null;
+    synthetic: boolean;
+  }[];
+  factChecks: { publisher: string; url: string; date: string | null; verdict: string; basis: string | null; summary: string }[];
+}
+export interface ViewEdge {
+  child: string;
+  parent: string;
+  types: string[];
+  beforeText: string;
+  afterText: string;
+  confidence: number;
+  directionCertain: boolean;
+  lowConfidenceTypes: string[] | null;
+  assertedBy: string;
+  note: string | null;
+}
+export interface ViewOrigin {
+  claimId: string;
+  name: string;
+  label: string;
+  kind: string;
+  confidence: number;
+  evidenceUrl: string;
+  established: boolean;
+  note: string | null;
+}
+
+export async function viewFamily(ids: string[]) {
+  const [claims, edges, origins] = await Promise.all([
+    read<ViewClaim>(VIEW_CLAIMS, { ids }),
+    read<ViewEdge>(VIEW_EDGES, { ids }),
+    read<ViewOrigin>(VIEW_ORIGINS, { ids }),
+  ]);
+  return { claims, edges, origins };
 }

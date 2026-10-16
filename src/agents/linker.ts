@@ -11,7 +11,7 @@
 
 import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
-import { type Candidate, ancestorsAmong, q1Candidates } from "@/graph/queries";
+import { type Candidate, q1Candidates, sameChainPairs } from "@/graph/queries";
 import { CycleError, addSighting, linkMutation, upsertClaim } from "@/graph/writes";
 import { BEST_EFFORT_TYPES, LINK_JUDGMENTS, MUTATION_RELIABILITY, MUTATION_TYPES, type MutationType } from "@/domain/types";
 import { generateJson } from "@/llm/llm";
@@ -119,17 +119,28 @@ export async function runLinker(
       await upsertClaim({ id: claimId, text: e.claim.text, firstSeen: opts.sightingDate, attributedTo: e.claim.attributed_to, synthetic: opts.synthetic, embedding: e.vector });
       await addSighting({ id: sightingId, claimId, publisher: null, url: opts.sourceUrl ?? null, date: opts.sightingDate, snippet, synthetic: opts.synthetic });
 
-      // Attach to the NEAREST matched versions: if one match is an ancestor of
-      // another match, it is an older generation of the same chain, so skip it.
-      // Then keep up to two parents (a claim may merge two versions; the lineage is a DAG).
+      // Attach to the CLOSEST version of each chain. When two matches lie on the same
+      // chain (one descends from the other), keep the one whose wording is closer to the
+      // new claim (Q1 similarity); on a tie, keep the newer. Then keep up to two parents
+      // (a claim may merge two versions; the lineage is a DAG).
       const matched = mine.filter((j) => j.judgment === "mutation" && j.mutation_types.length > 0);
-      const older = await ancestorsAmong(matched.map((j) => j.candidate_id));
+      const similarity = new Map(e.candidates.map((c) => [c.id, c.similarity]));
+      const sim = (id: string) => similarity.get(id) ?? 0;
+      const dropped = new Set<string>();
+      for (const p of await sameChainPairs(matched.map((j) => j.candidate_id))) {
+        dropped.add(sim(p.older) > sim(p.newer) ? p.newer : p.older);
+      }
       const mutations = matched
-        .filter((j) => !older.has(j.candidate_id))
+        .filter((j) => !dropped.has(j.candidate_id))
         .sort((a, b) => b.confidence - a.confidence)
         .slice(0, 2);
-      if (older.size > 0) {
-        await ctx.find("nearest_versions", `Skipped ${older.size} older generation(s) already in the chain above the nearest match`, { skipped: [...older] }, [...older]);
+      if (dropped.size > 0) {
+        await ctx.find(
+          "nearest_versions",
+          `Kept the closest version of each chain; skipped ${dropped.size} other generation(s) of the same chain`,
+          { skipped: [...dropped] },
+          [...dropped],
+        );
       }
       const parents: LinkOutcome["parents"] = [];
       for (const m of mutations) {
@@ -168,6 +179,11 @@ export async function runLinker(
         await ctx.find("link_none", `No lineage found; stored as a new claim`, { claim: e.claim.text }, [claimId]);
       }
       outcomes.push({ claimId, text: e.claim.text, status: parents.length ? "mutation" : "new", parents });
+    }
+
+    // One summary finding per claim: this is what the Skeptic reads back from the graph.
+    for (const o of outcomes) {
+      await ctx.find("linked_claim", `${o.status}: ${o.text}`, o, [o.claimId]);
     }
     return outcomes;
   });
