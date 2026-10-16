@@ -1,0 +1,348 @@
+{
+  "story": "NASA 'days of darkness' hoax",
+  "verified_on": "2026-10-16",
+  "verification_note": "Each fact below was checked against the cited fact-check page on 2026-10-16. Snopes pages returned HTTP 402 to our fetcher, so Snopes findings are taken as relayed by the cited outlets and carry lower confidence. Conflicts between sources are recorded, not resolved.",
+  "publishers": [
+    { "name": "Huzlers.com", "url": "https://www.huzlers.com", "kind": "satire_site" },
+    { "name": "anonymousmags.com", "url": null, "kind": "fake_news_site" },
+    { "name": "theracketreport.com", "url": null, "kind": "fake_news_site" },
+    { "name": "Newswatch33", "url": null, "kind": "fake_news_site" },
+    { "name": "YourNewsWire.com", "url": null, "kind": "fake_news_site" },
+    { "name": "GlobalRevolutionNetwork.com", "url": null, "kind": "blog" },
+    { "name": "naturalmedicineworld.com", "url": null, "kind": "blog" },
+    { "name": "ReflectionofMind.org", "url": null, "kind": "blog" },
+    { "name": "twofeed.org", "url": null, "kind": "fake_news_site" },
+    { "name": "NewsForMeToday.com", "url": null, "kind": "fake_news_site" }
+  ],
+  "sources": [
+    {
+      "name": "2012 'days of darkness' chain email (Mayan-calendar apocalypse rumor)",
+      "url": null,
+      "kind": "anonymous_rumor"
+    }
+  ],
+  "claims": [
+    {
+      "id": "nasa-2012-3day",
+      "text": "NASA confirmed the Earth will go completely dark for three days in December 2012.",
+      "first_seen": "2012-12",
+      "attributed_to": "NASA",
+      "evidence": "Snopes (science/astronomy/blackout) collected a chain email claiming NASA confirmed three days of darkness on December 5th 2012; Inverse (2017-11-02) reports Snopes traced the darkness hoax back to the 2012 Mayan-calendar apocalypse rumor."
+    },
+    {
+      "id": "nasa-2014-6day",
+      "text": "NASA confirms the Earth will have six days of almost complete darkness, December 16 to 22, 2014, caused by a solar storm.",
+      "first_seen": "2014-10",
+      "attributed_to": "NASA",
+      "evidence": "ThatsNonsense (2014-10-27) and EarthSky (2014-12-01): Huzlers story, darkness Tuesday 16th to Monday 22nd December, solar storm filling the sky with dust and debris."
+    },
+    {
+      "id": "nasa-2015-june-6day",
+      "text": "NASA confirms the Earth will have six days of almost complete darkness in June 2015, caused by a solar storm.",
+      "first_seen": null,
+      "attributed_to": "NASA",
+      "evidence": "ThatsNonsense (2014-10-27, updated 2016-10-24): copycat sites anonymousmags.com and theracketreport.com reposted near-identical versions with the date changed to June 2015. Posting dates not given."
+    },
+    {
+      "id": "nasa-2015-15day",
+      "text": "NASA confirms the Earth will have 15 days of complete darkness from November 15 to 29, 2015.",
+      "first_seen": "2015-10-22",
+      "attributed_to": "NASA",
+      "evidence": "PolitiFact (2017-06-14): YourNewsWire.com, Oct. 22, 2015. St Thomas Source (2015-10-27), quoting Snopes: Newswatch33, 15 days of total darkness between November 15 and November 29."
+    },
+    {
+      "id": "nasa-2016-15day",
+      "text": "NASA confirms the Earth will have 15 days of total darkness from November 15 to 29, 2016.",
+      "first_seen": "2016-10-24",
+      "attributed_to": "NASA",
+      "evidence": "PolitiFact (2017-06-14): GlobalRevolutionNetwork.com, Oct. 24, 2016 (per Internet Archive). ThatsNonsense (2016-10-24) quotes naturalmedicineworld.com: total darkness for 15 days in November 2016."
+    },
+    {
+      "id": "nasa-2016-bible",
+      "text": "NASA's confirmed 15 days of darkness in November 2016 is proof that the Bible is accurate and a sign of the end times.",
+      "first_seen": "2016-10-24",
+      "attributed_to": "NASA",
+      "evidence": "ThatsNonsense (2016-10-24): some variants claim the darkness is proof the Holy Bible is accurate and a sign of the end of times. Publisher not named."
+    },
+    {
+      "id": "nasa-2017-15day",
+      "text": "NASA confirms the Earth will have 15 days of darkness in November 2017; NASA's administrator sent a 1,000-page document explaining it to the White House.",
+      "first_seen": "2017-01-12",
+      "attributed_to": "NASA",
+      "evidence": "FactCheck.org (2017-08-11): reflectionofmind.org and globalrevolutionnetwork.com, Jan. 12 [2017]; twofeed.org, May 29, 2017; stories claim Charles Bolden wrote a 1000-page document for the White House. PolitiFact (2017-06-14): NewsForMeToday.com, June 2, 2017, citing ReflectionofMind.org (Jan. 12, 2017)."
+    }
+  ],
+  "sightings": [
+    {
+      "id": "s-2012-email",
+      "claim": "nasa-2012-3day",
+      "publisher": null,
+      "url": null,
+      "date": "2012-12",
+      "date_note": "Chain email; the email itself says NASA confirmed it on December 5th 2012.",
+      "snippet": "Chain email saying NASA confirmed the planet would go dark for three days in December 2012.",
+      "reported_by": "https://www.snopes.com/science/astronomy/blackout.asp"
+    },
+    {
+      "id": "s-2014-huzlers",
+      "claim": "nasa-2014-6day",
+      "publisher": "Huzlers.com",
+      "url": null,
+      "date": "2014-10",
+      "date_note": "CONFLICT: ThatsNonsense debunked it on 2014-10-27 and EarthSky on 2014-12-01, so it was posted in or before late Oct 2014. PolitiFact (2017) instead dates a Huzlers six-day post to Oct. 22, 2015 with darkness in December 2015.",
+      "snippet": "Satire site story: NASA says six days of near-total darkness, December 16-22, from a solar storm.",
+      "reported_by": "https://thatsnonsense.com/nasa-confirms-6-days-of-darkness"
+    },
+    {
+      "id": "s-2015june-anonymousmags",
+      "claim": "nasa-2015-june-6day",
+      "publisher": "anonymousmags.com",
+      "url": null,
+      "date": null,
+      "date_note": "Posting date not given by the fact-check.",
+      "snippet": "Copy of the six-day story with the date moved to June 2015.",
+      "reported_by": "https://thatsnonsense.com/nasa-confirms-6-days-of-darkness"
+    },
+    {
+      "id": "s-2015june-racketreport",
+      "claim": "nasa-2015-june-6day",
+      "publisher": "theracketreport.com",
+      "url": null,
+      "date": null,
+      "date_note": "Posting date not given by the fact-check.",
+      "snippet": "Copy of the six-day story with the date moved to June 2015.",
+      "reported_by": "https://thatsnonsense.com/nasa-confirms-6-days-of-darkness"
+    },
+    {
+      "id": "s-2015-yournewswire",
+      "claim": "nasa-2015-15day",
+      "publisher": "YourNewsWire.com",
+      "url": null,
+      "date": "2015-10-22",
+      "date_note": null,
+      "snippet": "Headline saying NASA says Earth will see 15 days of darkness this November.",
+      "reported_by": "https://www.politifact.com/factchecks/2017/jun/14/blog-posting/its-fake-nasa-never-said-earth-will-go-dark-15-day/"
+    },
+    {
+      "id": "s-2015-newswatch33",
+      "claim": "nasa-2015-15day",
+      "publisher": "Newswatch33",
+      "url": null,
+      "date": "2015-10",
+      "date_note": "On or before 2015-10-27 (date of the St Thomas Source report quoting Snopes).",
+      "snippet": "Fake news site story: 15 days of total darkness between November 15 and 29, 2015.",
+      "reported_by": "https://stthomassource.com/content/2015/10/27/15-days-of-darkness-dont-believe-it/"
+    },
+    {
+      "id": "s-2016-grn",
+      "claim": "nasa-2016-15day",
+      "publisher": "GlobalRevolutionNetwork.com",
+      "url": null,
+      "date": "2016-10-24",
+      "date_note": "Date per PolitiFact, from the Internet Archive.",
+      "snippet": "Post warning of 15 days of darkness in November 2016.",
+      "reported_by": "https://www.politifact.com/factchecks/2017/jun/14/blog-posting/its-fake-nasa-never-said-earth-will-go-dark-15-day/"
+    },
+    {
+      "id": "s-2016-naturalmedicineworld",
+      "claim": "nasa-2016-15day",
+      "publisher": "naturalmedicineworld.com",
+      "url": null,
+      "date": "2016-10",
+      "date_note": "On or before 2016-10-24 (date of the ThatsNonsense debunk quoting it).",
+      "snippet": "Post saying there will be total darkness for 15 days, November 15 to 29, 2016.",
+      "reported_by": "https://www.thatsnonsense.com/hoax-nasa-confirmed-15-days-darkness-november-2016/"
+    },
+    {
+      "id": "s-2016-bible",
+      "claim": "nasa-2016-bible",
+      "publisher": null,
+      "url": null,
+      "date": "2016-10",
+      "date_note": "On or before 2016-10-24. The fact-check says 'some variants' and does not name the site.",
+      "snippet": "Variant presenting the darkness as proof the Bible is accurate and a sign of the end times.",
+      "reported_by": "https://www.thatsnonsense.com/hoax-nasa-confirmed-15-days-darkness-november-2016/"
+    },
+    {
+      "id": "s-2017-reflectionofmind",
+      "claim": "nasa-2017-15day",
+      "publisher": "ReflectionofMind.org",
+      "url": null,
+      "date": "2017-01-12",
+      "date_note": null,
+      "snippet": "Post saying NASA confirmed 15 days of darkness in November 2017.",
+      "reported_by": "https://www.factcheck.org/2017/08/earth-wont-go-dark-days/"
+    },
+    {
+      "id": "s-2017-grn",
+      "claim": "nasa-2017-15day",
+      "publisher": "GlobalRevolutionNetwork.com",
+      "url": null,
+      "date": "2017-01-12",
+      "date_note": "FactCheck.org says this post and ReflectionofMind.org's are identical and each cites the other.",
+      "snippet": "Post identical to the ReflectionofMind.org version.",
+      "reported_by": "https://www.factcheck.org/2017/08/earth-wont-go-dark-days/"
+    },
+    {
+      "id": "s-2017-twofeed",
+      "claim": "nasa-2017-15day",
+      "publisher": "twofeed.org",
+      "url": null,
+      "date": "2017-05-29",
+      "date_note": "CONFLICT: FactCheck.org calls this the original 2017 story; PolitiFact names NewsForMeToday.com (June 2) instead.",
+      "snippet": "Headline: NASA confirms Earth will experience 15 days of darkness in November 2017.",
+      "reported_by": "https://www.factcheck.org/2017/08/earth-wont-go-dark-days/"
+    },
+    {
+      "id": "s-2017-newsformetoday",
+      "claim": "nasa-2017-15day",
+      "publisher": "NewsForMeToday.com",
+      "url": null,
+      "date": "2017-06-02",
+      "date_note": "Per PolitiFact; the post cites ReflectionofMind.org.",
+      "snippet": "Post saying NASA confirms Earth will experience 15 days of darkness in November 2017.",
+      "reported_by": "https://www.politifact.com/factchecks/2017/jun/14/blog-posting/its-fake-nasa-never-said-earth-will-go-dark-15-day/"
+    }
+  ],
+  "mutations": [
+    {
+      "child": "nasa-2014-6day",
+      "parent": "nasa-2012-3day",
+      "types": ["number_change", "date_shift"],
+      "before_text": "three days of darkness in December 2012",
+      "after_text": "six days of darkness, December 16-22, 2014",
+      "confidence": 0.5,
+      "note": "CONTESTED link. Snopes (as relayed by Inverse) traces the hoax back to the 2012 rumor; ThatsNonsense and EarthSky name Huzlers as the origin without mentioning 2012."
+    },
+    {
+      "child": "nasa-2015-june-6day",
+      "parent": "nasa-2014-6day",
+      "types": ["date_shift"],
+      "before_text": "December 16-22, 2014",
+      "after_text": "June 2015",
+      "confidence": 0.9,
+      "note": "ThatsNonsense: near-identical copies with the date changed. Posting date unknown, so direction is not certain from dates alone."
+    },
+    {
+      "child": "nasa-2015-15day",
+      "parent": "nasa-2014-6day",
+      "types": ["number_change", "date_shift"],
+      "before_text": "six days of darkness, December 16-22, 2014",
+      "after_text": "15 days of darkness, November 15-29, 2015",
+      "confidence": 0.85,
+      "note": "ThatsNonsense (2016, 2017) treats the six-day and 15-day stories as one long-running hoax with changed durations and dates."
+    },
+    {
+      "child": "nasa-2016-15day",
+      "parent": "nasa-2015-15day",
+      "types": ["date_shift"],
+      "before_text": "November 15-29, 2015",
+      "after_text": "November 15-29, 2016",
+      "confidence": 0.95,
+      "note": null
+    },
+    {
+      "child": "nasa-2016-bible",
+      "parent": "nasa-2016-15day",
+      "types": ["exaggeration"],
+      "before_text": "15 days of darkness in November 2016",
+      "after_text": "15 days of darkness in November 2016, proof the Bible is accurate and a sign of the end times",
+      "confidence": 0.6,
+      "note": "Added religious end-times framing. No enum type fits exactly; 'exaggeration' is the closest. Flagged for owner review in DECISIONS.md."
+    },
+    {
+      "child": "nasa-2017-15day",
+      "parent": "nasa-2016-15day",
+      "types": ["date_shift", "exaggeration"],
+      "before_text": "15 days of darkness in November 2016",
+      "after_text": "15 days of darkness in November 2017; NASA's administrator sent a 1,000-page document to the White House",
+      "confidence": 0.8,
+      "note": "Fact-checks document the 1,000-page White House document only in 2017 versions; it may have appeared earlier."
+    }
+  ],
+  "origins": [
+    {
+      "claim": "nasa-2014-6day",
+      "target_label": "Publisher",
+      "target": "Huzlers.com",
+      "confidence": 0.7,
+      "established": false,
+      "evidence_url": "https://www.thatsnonsense.com/hoax-nasa-confirmed-15-days-darkness-november-2016/",
+      "note": "ThatsNonsense (2014, 2016, 2017) and EarthSky name Huzlers.com as where the hoax started."
+    },
+    {
+      "claim": "nasa-2012-3day",
+      "target_label": "Source",
+      "target": "2012 'days of darkness' chain email (Mayan-calendar apocalypse rumor)",
+      "confidence": 0.4,
+      "established": false,
+      "evidence_url": "https://www.inverse.com/article/38036-did-nasa-confirm-november-2017-blackout",
+      "note": "Snopes (relayed by Inverse, 2017-11-02) traces the rumor to 2012 and the Mayan-calendar apocalypse. Snopes page not fetched directly."
+    }
+  ],
+  "fact_checks": [
+    {
+      "claim": "nasa-2017-15day",
+      "url": "https://www.politifact.com/factchecks/2017/jun/14/blog-posting/its-fake-nasa-never-said-earth-will-go-dark-15-day/",
+      "publisher": "PolitiFact",
+      "date": "2017-06-14",
+      "verdict": "false",
+      "basis": "fabricated",
+      "summary": "Rated Pants on Fire: no evidence NASA made any such announcement; the story is completely made up."
+    },
+    {
+      "claim": "nasa-2017-15day",
+      "url": "https://www.factcheck.org/2017/08/earth-wont-go-dark-days/",
+      "publisher": "FactCheck.org",
+      "date": "2017-08-11",
+      "verdict": "false",
+      "basis": "fabricated",
+      "summary": "NASA made no such announcement; no evidence of the 1,000-page document."
+    },
+    {
+      "claim": "nasa-2017-15day",
+      "url": "https://thatsnonsense.com/nasa-confirmed-15-days-darkness-november-2017-fact-check",
+      "publisher": "ThatsNonsense",
+      "date": "2017-08-20",
+      "verdict": "false",
+      "basis": "fabricated",
+      "summary": "The latest version of a long-running hoax; it has never been true."
+    },
+    {
+      "claim": "nasa-2016-15day",
+      "url": "https://www.thatsnonsense.com/hoax-nasa-confirmed-15-days-darkness-november-2016/",
+      "publisher": "ThatsNonsense",
+      "date": "2016-10-24",
+      "verdict": "false",
+      "basis": "fabricated",
+      "summary": "Hoax: NASA confirmed no such thing."
+    },
+    {
+      "claim": "nasa-2015-15day",
+      "url": "https://stthomassource.com/content/2015/10/27/15-days-of-darkness-dont-believe-it/",
+      "publisher": "St Thomas Source (quoting Snopes)",
+      "date": "2015-10-27",
+      "verdict": "false",
+      "basis": "fabricated",
+      "summary": "News coverage relaying Snopes: Newswatch33 is not a legitimate news outlet and the story recycles an older debunked rumor."
+    },
+    {
+      "claim": "nasa-2014-6day",
+      "url": "https://thatsnonsense.com/nasa-confirms-6-days-of-darkness",
+      "publisher": "ThatsNonsense",
+      "date": "2014-10-27",
+      "verdict": "false",
+      "basis": "fabricated",
+      "summary": "Total nonsense: NASA published no such report."
+    },
+    {
+      "claim": "nasa-2014-6day",
+      "url": "https://earthsky.org/earth/nasa-quells-rumor-days-of-darkness-in-december-of-course-not/",
+      "publisher": "EarthSky",
+      "date": "2014-12-01",
+      "verdict": "false",
+      "basis": "fabricated",
+      "summary": "No such darkness was predicted; NASA Earth Observatory disavowed the claim."
+    }
+  ]
+}
