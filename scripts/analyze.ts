@@ -1,19 +1,15 @@
 // pnpm analyze --go [--synthetic] "claim text"
 //
-// Runs the Extractor and Linker against the live graph (Gates 1 + 2: makes real API calls,
-// at most 2 LLM calls + 1 embedding call per atomic claim), then prints Q2 and Q4 for each result.
+// Runs all four agents against the live graph (Gates 1 + 2: real API calls).
+// Cost per run: 1 embedding call per atomic claim, plus at most 3 LLM calls
+// (Extractor, one batched Linker call, one batched Writer call). Cached inputs cost 0.
 // --go is required so the pipeline is never started by accident.
 // --synthetic marks the stored claim and sighting as synthetic demo data.
 
-import { randomUUID } from "node:crypto";
-import { config, requiredVariables } from "@/lib/config";
+import { requiredVariables } from "@/lib/config";
 import { closeGraph } from "@/lib/db";
-import { graphCounts, q2Origins, q4InheritancePaths } from "@/graph/queries";
-import { deriveVerdict } from "@/domain/propagation";
-import { RunBudget } from "@/llm/budget";
-import { runExtractor } from "@/agents/extractor";
-import { runLinker } from "@/agents/linker";
 import { readTrace } from "@/agents/trace";
+import { runAnalysis } from "@/pipeline";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -25,47 +21,29 @@ async function main() {
   if (!go) throw new Error("Refusing to call external APIs without --go (the owner must clear Gates 1 and 2 first).");
   const missing = requiredVariables().filter((v) => !v.present).map((v) => v.name);
   if (missing.length) throw new Error(`Missing configuration: ${missing.join(", ")}. Run pnpm preflight.`);
-  if ((await graphCounts()).claims === 0) throw new Error("The graph is empty. Run pnpm schema && pnpm seed.");
 
-  const analysisId = randomUUID();
-  const budget = new RunBudget();
-  console.log(`analysis ${analysisId} (budget: ${config.budget.maxCallsPerRun} LLM calls this run)\n`);
+  const result = await runAnalysis(text, { synthetic });
 
-  const claims = await runExtractor(analysisId, text, budget);
-  console.log(`Extractor: ${claims.length} atomic claim(s)`);
-  for (const c of claims) console.log(`  - ${c.text}`);
-
-  const today = new Date().toLocaleDateString("en-CA"); // local YYYY-MM-DD
-  const outcomes = await runLinker(analysisId, budget, { synthetic, sightingDate: today });
-
-  console.log("\nAgent trace (read back from the graph):");
-  for (const r of await readTrace(analysisId)) {
+  console.log(`analysis ${result.analysisId}\n\nAgent trace (read back from the graph):`);
+  for (const r of await readTrace(result.analysisId)) {
     console.log(`  [${r.seq}] ${r.agent} (${r.method}) ${r.status} via ${r.provider ?? "-"}${r.cached ? " [cache]" : ""}`);
     for (const f of r.findings) console.log(`        ${f.kind}: ${f.summary}`);
   }
 
-  for (const o of outcomes) {
-    console.log(`\n== ${o.text}\n   claim ${o.claimId} (${o.status})`);
-    const origins = await q2Origins(o.claimId);
-    console.log(`   Q2 origin${origins.contested ? " (CONTESTED)" : ""}:`);
-    for (const row of origins.rows) {
-      console.log(`     chain: ${row.chain.map((c) => `${c.id}[${c.firstSeen ?? "?"}]`).join(" -> ")}`);
-      for (const og of row.origins) console.log(`     origin: ${og.name} (conf ${og.confidence}) ${og.evidenceUrl}`);
+  for (const a of result.answers) {
+    console.log(`\n== ${a.text}${a.synthetic ? "  [SYNTHETIC DEMO DATA]" : ""}`);
+    console.log(`   ${a.headline}`);
+    console.log(`   ${a.summary}  (written by: ${a.writtenBy})`);
+    if (a.kind === "inherited") {
+      console.log(`   verdict: ${a.verdict}, basis: ${a.basis}, confidence ${a.confidence.toFixed(2)} (raw ${a.rawConfidence.toFixed(2)}), ${a.hops} hop(s)`);
+      for (const s of a.supporting) console.log(`   fact-check: ${s.publisher} (${s.hops} hop(s) up) ${s.url}`);
     }
-    const verdict = deriveVerdict(await q4InheritancePaths(o.claimId), config.propagation);
-    console.log(`   Q4 derived verdict: ${verdict.kind}`);
-    if (verdict.kind === "inherited") {
-      const b = verdict.best;
-      console.log(`     ${b.verdict} (basis ${b.basis}), confidence ${b.confidence.toFixed(2)} over ${b.hopCount} hop(s)`);
-      console.log(`     ${b.explanation}`);
-      console.log(`     fact-check: ${b.path.factCheck.publisher} ${b.path.factCheck.url}`);
-    } else if (verdict.kind === "unknown") {
-      console.log("     No match in the graph. Unknown.");
-    } else {
-      for (const a of verdict.all) console.log(`     ${a.status}: ${a.explanation}`);
-    }
+    if (a.chain.length > 1) console.log(`   lineage: ${a.chain.map((c) => `${c.id}[${c.firstSeen ?? "?"}]`).join(" -> ")}`);
+    console.log(`   origin${a.origins.contested ? " (CONTESTED)" : ""}: ${a.origins.list.map((o) => `${o.name} (${o.confidence})`).join("; ") || "none recorded"}`);
+    for (const c of a.cautions) console.log(`   caution: ${c}`);
+    console.log(`   what the graph did: ${a.whatTheGraphDid}`);
   }
-  console.log(`\nLLM calls this run: ${budget.llmCalls}, embedding calls: ${budget.embedCalls}`);
+  console.log(`\nLLM calls this run: ${result.llmCalls}, embedding calls: ${result.embedCalls}`);
 }
 
 main()

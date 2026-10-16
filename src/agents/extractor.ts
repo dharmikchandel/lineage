@@ -23,6 +23,7 @@ const ExtractorOutput = z.object({
 const SYSTEM = `You split text into atomic factual claims for a claim-lineage tracker.
 Rules:
 - One claim per checkable assertion. Ignore opinions, greetings and calls to action.
+- Keep a claim's cited source or evidence in the SAME claim ("according to X", "X confirms", "a report sent to Y says"). Who said it, and on what authority, is part of the claim, never a separate claim.
 - Paraphrase each claim as one neutral sentence. Keep every number, date and attribution exactly as stated.
 - Never add facts that are not in the text. Never judge truth.
 - At most 5 claims. If the text contains no checkable claim, return an empty list.`;
