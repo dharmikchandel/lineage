@@ -1,0 +1,13 @@
+# Local FalkorDB. Data persists in a named volume; `pnpm seed` is idempotent anyway.
+# Host ports default to 6380 / 3001 so they do not clash with a system Redis on 6379
+# or the Next.js dev server on 3000. Override with FALKORDB_PORT / FALKORDB_BROWSER_PORT.
+services:
+  falkordb:
+    image: falkordb/falkordb:v4.22.0
+    ports:
+      - "${FALKORDB_PORT:-6380}:6379"          # Redis protocol (the app connects here)
+      - "${FALKORDB_BROWSER_PORT:-3001}:3000"  # FalkorDB Browser UI (optional, for inspecting the graph)
+    volumes:
+      - falkordb-data:/data
+volumes:
+  falkordb-data:
