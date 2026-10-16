@@ -1,0 +1,12 @@
+/.local
+node_modules/
+.next/
+out/
+# Secrets: never commit
+.env
+.env.*
+!.env.example
+# Local cache of LLM/embedding responses and usage counters (never holds claims or edges)
+.cache/
+*.tsbuildinfo
+next-env.d.ts

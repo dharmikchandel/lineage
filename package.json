@@ -1,0 +1,40 @@
+{
+  "name": "lineage",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lineage: traces how a claim mutated over time, using a FalkorDB graph as the only source of truth.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "preflight": "tsx scripts/preflight.ts",
+    "schema": "tsx scripts/schema.ts",
+    "seed": "tsx scripts/seed.ts",
+    "analyze": "tsx scripts/analyze.ts",
+    "query": "tsx scripts/query.ts"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.8",
+    "falkordb": "^6.8.0",
+    "next": "16.3.8",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
+  },
+  "packageManager": "pnpm@12.9.1"
+}
