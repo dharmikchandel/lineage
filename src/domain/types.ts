@@ -22,6 +22,13 @@ export const MUTATION_RELIABILITY: Record<MutationType, number> = {
   context_stripped: 0.5,
 };
 
+/**
+ * Types we can only detect on a best-effort basis. They are recorded on the edge as
+ * low_confidence_types, but do not lower the edge's own confidence: the edge is
+ * still supported by the reliable types next to them.
+ */
+export const BEST_EFFORT_TYPES: readonly MutationType[] = ["context_stripped"];
+
 /** What a fact-check concluded. */
 export const FACTCHECK_VERDICTS = ["false", "misleading", "misattributed", "unproven"] as const;
 export type FactCheckVerdict = (typeof FACTCHECK_VERDICTS)[number];

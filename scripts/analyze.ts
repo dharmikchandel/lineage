@@ -35,7 +35,7 @@ async function main() {
   console.log(`Extractor: ${claims.length} atomic claim(s)`);
   for (const c of claims) console.log(`  - ${c.text}`);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleDateString("en-CA"); // local YYYY-MM-DD
   const outcomes = await runLinker(analysisId, budget, { synthetic, sightingDate: today });
 
   console.log("\nAgent trace (read back from the graph):");

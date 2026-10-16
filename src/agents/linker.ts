@@ -9,19 +9,19 @@
 //        mutation  -> new Claim + MUTATED_FROM edge(s) to the parent(s)
 //        otherwise -> new Claim with no lineage (the graph will know it next time)
 
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
-import { type Candidate, q1Candidates } from "@/graph/queries";
+import { type Candidate, ancestorsAmong, q1Candidates } from "@/graph/queries";
 import { CycleError, addSighting, linkMutation, upsertClaim } from "@/graph/writes";
-import { LINK_JUDGMENTS, MUTATION_RELIABILITY, MUTATION_TYPES, type MutationType } from "@/domain/types";
+import { BEST_EFFORT_TYPES, LINK_JUDGMENTS, MUTATION_RELIABILITY, MUTATION_TYPES, type MutationType } from "@/domain/types";
 import { generateJson } from "@/llm/llm";
 import { embed } from "@/llm/embed";
 import type { RunBudget } from "@/llm/budget";
 import type { AtomicClaim } from "./extractor";
 import { readFindings, runAgent } from "./trace";
 
-/** Candidates less similar than this are not shown to the LLM at all (saves quota, avoids forced matches). */
-export const MIN_CANDIDATE_SIMILARITY = 0.6;
+/** Candidates less similar than this are not shown to the LLM at all (saves quota). Measured: hoax variants 0.94-0.97, an unrelated health claim 0.73. */
+export const MIN_CANDIDATE_SIMILARITY = 0.75;
 const TOP_K = 5;
 
 const Judgment = z.object({
@@ -114,19 +114,32 @@ export async function runLinker(
         continue;
       }
 
-      const claimId = `c-${randomUUID()}`;
+      // Same text -> same id, so a replayed run produces the same graph (and hits the LLM cache).
+      const claimId = `c-${createHash("sha256").update(e.claim.text).digest("hex").slice(0, 12)}`;
       await upsertClaim({ id: claimId, text: e.claim.text, firstSeen: opts.sightingDate, attributedTo: e.claim.attributed_to, synthetic: opts.synthetic, embedding: e.vector });
       await addSighting({ id: sightingId, claimId, publisher: null, url: opts.sourceUrl ?? null, date: opts.sightingDate, snippet, synthetic: opts.synthetic });
 
-      // Up to two parents: a claim may merge two earlier versions (the lineage is a DAG).
-      const mutations = mine
-        .filter((j) => j.judgment === "mutation" && j.mutation_types.length > 0)
+      // Attach to the NEAREST matched versions: if one match is an ancestor of
+      // another match, it is an older generation of the same chain, so skip it.
+      // Then keep up to two parents (a claim may merge two versions; the lineage is a DAG).
+      const matched = mine.filter((j) => j.judgment === "mutation" && j.mutation_types.length > 0);
+      const older = await ancestorsAmong(matched.map((j) => j.candidate_id));
+      const mutations = matched
+        .filter((j) => !older.has(j.candidate_id))
         .sort((a, b) => b.confidence - a.confidence)
         .slice(0, 2);
+      if (older.size > 0) {
+        await ctx.find("nearest_versions", `Skipped ${older.size} older generation(s) already in the chain above the nearest match`, { skipped: [...older] }, [...older]);
+      }
       const parents: LinkOutcome["parents"] = [];
       for (const m of mutations) {
-        // Cap confidence by how reliably the least reliable mutation type can be detected.
-        const cap = Math.min(...m.mutation_types.map((t) => MUTATION_RELIABILITY[t]));
+        // Cap confidence by how reliably the edge's checkable types can be detected.
+        // Best-effort types (context_stripped) are flagged instead of dragging the edge down,
+        // unless they are the only evidence for the edge.
+        const reliable = m.mutation_types.filter((t) => !BEST_EFFORT_TYPES.includes(t));
+        const lowConfidenceTypes = m.mutation_types.filter((t) => BEST_EFFORT_TYPES.includes(t));
+        const capTypes = reliable.length > 0 ? reliable : m.mutation_types;
+        const cap = Math.min(...capTypes.map((t) => MUTATION_RELIABILITY[t]));
         const confidence = Math.min(m.confidence, cap);
         try {
           const { directionCertain } = await linkMutation({
@@ -136,13 +149,14 @@ export async function runLinker(
             beforeText: m.before_text,
             afterText: m.after_text,
             confidence,
+            lowConfidenceTypes,
             assertedBy: "linker",
           });
           parents.push({ id: m.candidate_id, types: m.mutation_types, confidence });
           await ctx.find(
             "link_mutation",
             `Mutated from ${m.candidate_id}: ${m.mutation_types.join(", ")} ("${m.before_text}" -> "${m.after_text}")`,
-            { ...m, confidence, directionCertain },
+            { ...m, confidence, lowConfidenceTypes, directionCertain },
             [claimId, m.candidate_id],
           );
         } catch (err) {

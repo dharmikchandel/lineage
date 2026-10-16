@@ -121,7 +121,10 @@ export async function q3Descendants(id: string) {
 export const Q4_INHERITANCE_PATHS = `
 // Walk UP from the claim along MUTATED_FROM, zero or more hops (zero = the claim
 // itself was fact-checked), to any ancestor that has a fact-check.
-MATCH path = (c:Claim {id: $id})-[:MUTATED_FROM*0..${Math.trunc(config.propagation.maxDepth)}]->(a:Claim)-[chk:CHECKED_BY]->(f:FactCheck)
+// (The path is bound to the MUTATED_FROM chain only; the fact-check is matched separately
+// so it is not counted as a hop.)
+MATCH path = (c:Claim {id: $id})-[:MUTATED_FROM*0..${Math.trunc(config.propagation.maxDepth)}]->(a:Claim)
+MATCH (a)-[chk:CHECKED_BY]->(f:FactCheck)
 // The true origin(s) the fact-checker established for that ancestor (needed to
 // recognise a re-attribution to the true author as a correction).
 OPTIONAL MATCH (a)-[o:ORIGINATES_FROM {established: true}]->(src)
@@ -199,6 +202,24 @@ export async function q6PublisherSpread(claimIds: string[]) {
     posts: { claimId: string; date: string; url: string; dateNote: string | null }[];
     firstPost: string;
   }>(Q6_PUBLISHER_SPREAD, { claimIds });
+}
+
+// ---------------------------------------------------------------------------
+// Nearest versions (used by the Linker when choosing parents)
+// ---------------------------------------------------------------------------
+export const ANCESTORS_AMONG = `
+// Of these matched claims, which are ancestors of another matched claim?
+// Those are older links in the same chain; the new claim should attach to the
+// nearest version, not to every generation above it.
+MATCH (newer:Claim)-[:MUTATED_FROM*1..]->(older:Claim)
+WHERE newer.id IN $ids AND older.id IN $ids
+RETURN DISTINCT older.id AS id
+`;
+
+export async function ancestorsAmong(ids: string[]): Promise<Set<string>> {
+  if (ids.length < 2) return new Set();
+  const rows = await read<{ id: string }>(ANCESTORS_AMONG, { ids });
+  return new Set(rows.map((r) => r.id));
 }
 
 // ---------------------------------------------------------------------------

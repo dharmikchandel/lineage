@@ -77,6 +77,8 @@ export async function linkMutation(e: {
   beforeText: string;
   afterText: string;
   confidence: number;
+  /** Types on this edge that are best-effort guesses (shown with a lower-confidence label). */
+  lowConfidenceTypes?: MutationType[];
   assertedBy: string;
   note?: string | null;
 }): Promise<{ directionCertain: boolean }> {
@@ -107,8 +109,8 @@ export async function linkMutation(e: {
      MERGE (child)-[r:MUTATED_FROM]->(parent)
      SET r.types = $types, r.before_text = $beforeText, r.after_text = $afterText,
          r.confidence = $confidence, r.asserted_by = $assertedBy, r.at = $at,
-         r.direction_certain = $directionCertain, r.note = $note`,
-    { ...e, note: e.note ?? null, at: new Date().toISOString(), directionCertain },
+         r.direction_certain = $directionCertain, r.low_confidence_types = $lowConfidenceTypes, r.note = $note`,
+    { ...e, note: e.note ?? null, lowConfidenceTypes: e.lowConfidenceTypes ?? [], at: new Date().toISOString(), directionCertain },
   );
   return { directionCertain };
 }
