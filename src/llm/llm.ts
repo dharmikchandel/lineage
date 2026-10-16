@@ -46,6 +46,7 @@ async function callGemini(model: string, system: string, user: string, jsonSchem
           maxOutputTokens: maxTokens,
           responseMimeType: "application/json",
           responseJsonSchema: jsonSchema,
+          thinkingConfig: { thinkingLevel: config.llm.thinkingLevel },
         },
       }),
     }),

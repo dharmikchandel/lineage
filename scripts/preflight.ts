@@ -72,7 +72,7 @@ async function main() {
   console.log(`\n4. Usage today (Pacific ${usage.day}): ${usage.llmCalls}/${config.budget.maxCallsPerDay} LLM calls, ${usage.embedCalls} embedding calls`);
 
   if (checkKeys) {
-    console.log("\n5. Key validation: makes ONE LLM call (max 16 output tokens) and ONE embedding call.");
+    console.log("\n5. Key validation: makes ONE LLM call (max 128 output tokens, thinking included) and ONE embedding call.");
     if (failed) {
       console.log("  skipped: fix the missing items above first.");
     } else {
@@ -88,7 +88,7 @@ async function main() {
             user: 'Return {"ok": true}.',
             schema: z.object({ ok: z.boolean() }),
             budget,
-            maxTokens: 16,
+            maxTokens: 128,
           });
           ok(`LLM answered via ${r.provider} (${r.model})${r.cached ? " [from cache]" : ""}`);
         } catch (err) {

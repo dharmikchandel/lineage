@@ -26,6 +26,8 @@ export const config = {
   llm: {
     provider: str("LLM_PROVIDER"),
     model: str("LLM_MODEL"),
+    // Gemini 3.x models always "think"; thought tokens count toward MAX_TOKENS_PER_CALL.
+    thinkingLevel: str("LLM_THINKING_LEVEL", "minimal"),
     geminiKey: str("GEMINI_API_KEY"),
     fallbackProvider: str("LLM_FALLBACK_PROVIDER"),
     fallbackModel: str("LLM_FALLBACK_MODEL"),
