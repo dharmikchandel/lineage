@@ -380,7 +380,7 @@ export function LineageGraph({ view, whatTheGraphDid }: { view: LineageView; wha
         <div className="hud" style={d(narrow ? 0 : igniteAt + 200)}>
           <span className="ico"><Sparkle size={17} /></span>
           <div>
-            <h3>What the graph just did</h3>
+            <h3>What the graph did</h3>
             <p>{whatTheGraphDid}</p>
           </div>
         </div>
@@ -498,8 +498,16 @@ function VerticalLineage({ view, selected, onSelect }: { view: LineageView; sele
   const byId = new Map(view.claims.map((c) => [c.id, c]));
   const parentsOf = new Map<string, typeof view.edges>();
   for (const e of view.edges) parentsOf.set(e.child, [...(parentsOf.get(e.child) ?? []), e]);
+  // How many generations sit above a claim, so a parent and child seen on the same day keep their order.
+  const depth = (id: string, seen = new Set<string>()): number => {
+    if (seen.has(id)) return 0;
+    seen.add(id);
+    return Math.max(0, ...(parentsOf.get(id) ?? []).map((e) => 1 + depth(e.parent, new Set(seen))));
+  };
   // Dated versions in date order; an undated version goes right after its parent.
-  const dated = view.claims.filter((c) => c.firstSeen).sort((a, b) => a.firstSeen!.localeCompare(b.firstSeen!));
+  const dated = view.claims
+    .filter((c) => c.firstSeen)
+    .sort((a, b) => a.firstSeen!.localeCompare(b.firstSeen!) || depth(a.id) - depth(b.id));
   const undated = view.claims.filter((c) => !c.firstSeen);
   const claims: LineageClaim[] = [];
   for (const c of dated) {

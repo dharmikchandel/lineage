@@ -57,13 +57,13 @@ function StatusIcon({ r }: { r: AgentRow }) {
   return <Icon size={13} />;
 }
 
-export function AgentTrace({ agents, live }: { agents: AgentRow[] | null; live: boolean }) {
+export function AgentTrace({ agents, live, recordedLabel }: { agents: AgentRow[] | null; live: boolean; recordedLabel?: string }) {
   const rows = withLiveStatus(agents, live);
   return (
     <section className="panel" aria-label="Agent trace">
       <div className="panel-head">
         <h2><Waypoints size={15} /> Agent trace</h2>
-        <span>read back from the graph</span>
+        <span>{recordedLabel ?? "read back from the graph"}</span>
       </div>
       <div className="panel-body">
         <ol className="trace">
@@ -74,8 +74,11 @@ export function AgentTrace({ agents, live }: { agents: AgentRow[] | null; live: 
                 <div className="a-head">
                   <span className="a-name">{r.agent}</span>
                   <Method r={r} />
-                  {r.cached && <span className="tag cache" title="This step's model output came from the local cache">cache</span>}
-                  {r.mode === "recorded" && <span className="tag recorded">recorded</span>}
+                  {r.mode === "recorded" ? (
+                    r.method === "llm" && r.status === "ok" && r.provider && <span className="tag recorded" title="This step's model reply was recorded from a real run">recorded</span>
+                  ) : (
+                    r.cached && <span className="tag cache" title="This step's model output came from the local cache">cache</span>
+                  )}
                   <span className="sr-only">status: {r.status}</span>
                 </div>
                 <div className="a-role">{AGENT_META[r.agent].role}</div>
@@ -119,7 +122,9 @@ export function Pipeline({ agents, live }: { agents: AgentRow[] | null; live: bo
             <div key={r.agent} className={`pipe-step ${r.status}`}>
               <div className="pipe-node">{r.status === "ok" ? <Check size={20} strokeWidth={2.2} /> : <Icon size={20} />}</div>
               <div className="pipe-name">{r.agent}</div>
-              <div className="pipe-method">{r.agent === "skeptic" ? "rules, no LLM" : r.status === "ok" && r.cached ? "LLM · from cache" : "LLM"}</div>
+              <div className="pipe-method">
+                {r.agent === "skeptic" ? "rules, no LLM" : r.mode === "recorded" && r.provider ? "LLM · recorded" : r.status === "ok" && r.cached ? "LLM · from cache" : "LLM"}
+              </div>
             </div>
           );
         })}

@@ -2,15 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ArrowRight, CircleDashed, Database, GitBranch, Info, LoaderCircle, Plus, ShieldCheck, Split, TriangleAlert, Unplug, type LucideIcon,
+  ArrowRight, CircleDashed, Database, GitBranch, History, Info, LoaderCircle, Plus, ShieldCheck, Split, TriangleAlert, Unplug, type LucideIcon,
 } from "lucide-react";
 import { PRESETS } from "@/lib/presets";
 import type { AnalysisView, Health, LineageView } from "@/lib/view-types";
 import { AgentTrace, Pipeline } from "./AgentTrace";
-import { AnswerPanel } from "./AnswerPanel";
+import { AnswerPanel, fmtDate } from "./AnswerPanel";
 import { LineageGraph, revealDuration } from "./LineageGraph";
 import { AmbientTree } from "./AmbientTree";
 import { Mark } from "./Mark";
+import { isRecordedRun, useReplay } from "./replay";
 
 const POLL_MS = 700;
 
@@ -106,8 +107,11 @@ export function LineageApp() {
     };
   }, [analysisId, refreshHealth]);
 
+  // A recorded run is played back step by step; a live one is shown as polled.
+  const view = useReplay(analysis);
+
   // Once answered, fetch the family tree around the selected claim (live graph queries).
-  const focusId = analysis?.status === "done" ? analysis.answers[active]?.claimId : undefined;
+  const focusId = view?.status === "done" ? view.answers[active]?.claimId : undefined;
   useEffect(() => {
     if (!focusId) return;
     let stopped = false;
@@ -125,16 +129,34 @@ export function LineageApp() {
     };
   }, [focusId]);
 
-  const live = analysis?.status === "running" || (analysisId !== null && analysis === null);
+  const live = view?.status === "running" || (analysisId !== null && view === null);
   const ok = health !== null && "ok" in health && health.ok;
   const graphDown = health !== null && !ok;
   const empty = ok && health.empty;
   const recorded = ok && health.mode === "recorded";
-  const canSubmit = !live && text.trim().length >= 10 && !graphDown && !empty;
+  const rec = ok ? health.recorded : null;
+  const recordedLabel = rec ? `Recorded run: ${fmtDate(rec.on)}, ${rec.model}` : "Recorded run";
+  const recordedId = presetId ? rec?.runs[presetId] : undefined;
+  const canSubmit = !live && !graphDown && !empty && (recorded ? Boolean(recordedId) : text.trim().length >= 10);
+
+  // Recorded mode: open the preset's recorded run (already in the graph) instead of calling the agents.
+  function openRecorded(claim: string, id: string) {
+    setSubmitError(null);
+    setAnalysis(null);
+    setLineage(null);
+    setActive(0);
+    setSubmitted(claim);
+    setAnalysisId(id);
+    window.history.replaceState(null, "", `?analysis=${id}`);
+  }
 
   async function submit(e?: React.FormEvent) {
     e?.preventDefault();
     if (!canSubmit) return;
+    if (recorded) {
+      if (recordedId) openRecorded(text.trim(), recordedId);
+      return;
+    }
     setSubmitError(null);
     setAnalysis(null);
     setLineage(null);
@@ -176,14 +198,21 @@ export function LineageApp() {
     if (!p) return;
     setText(p.text);
     setPresetId(p.id);
+    if (recorded) {
+      const id = rec?.runs[p.id];
+      if (id) openRecorded(p.text, id);
+      else setSubmitError("This recorded run is not in the graph yet. Run pnpm seed with LINEAGE_MODE=recorded.");
+      return;
+    }
     input.current?.focus();
   }
 
-  const answers = analysis?.status === "done" ? analysis.answers : [];
+  const answers = view?.status === "done" ? view.answers : [];
+  const recordedRun = isRecordedRun(analysis);
   const answer = answers[active];
   const query =
     submitted ??
-    analysis?.agents.find((a) => a.agent === "extractor")?.findings.find((f) => f.kind === "atomic_claim")?.summary ??
+    view?.agents.find((a) => a.agent === "extractor")?.findings.find((f) => f.kind === "atomic_claim")?.summary ??
     "Loading analysis…";
   const reveal = lineage ? revealDuration(lineage) : 0;
 
@@ -206,7 +235,7 @@ export function LineageApp() {
             ) : (
               <span className="pill down"><Unplug size={12} /> FalkorDB unreachable</span>
             )}
-            {ok && <span className={`pill mode ${health.mode}`}>{health.mode === "local" ? health.model : "recorded mode"}</span>}
+            {ok && <span className={`pill mode ${health.mode}`}>{health.mode === "local" ? health.model : "recorded runs"}</span>}
           </div>
         </div>
       </header>
@@ -248,7 +277,7 @@ export function LineageApp() {
                 id="claim"
                 ref={input}
                 value={text}
-                placeholder="NASA confirms Earth will go dark for 15 days in November…"
+                placeholder={recorded ? "This public demo replays recorded runs. Pick a demo claim below." : "NASA confirms Earth will go dark for 15 days in November…"}
                 onChange={(e) => {
                   setText(e.target.value);
                   setPresetId(null);
@@ -261,28 +290,34 @@ export function LineageApp() {
               />
               <div className="composer-foot">
                 <div className="composer-note">
-                  {presetId ? (
+                  {recorded ? (
+                    <>
+                      <History size={13} /> Agent steps are replayed from real runs; every graph query runs live. To trace your own text, run Lineage locally.
+                    </>
+                  ) : presetId ? (
                     <>
                       <span className="tag synthetic">synthetic demo data</span> a made-up test input, never a real article
                     </>
                   ) : (
                     <>
-                      <Info size={13} /> Local mode sends text to Google Gemini. Don't paste private information.
+                      <Info size={13} /> Text is sent to Google Gemini, and on the free tier Google may use it to improve its products. Don't paste private information.
                     </>
                   )}
                 </div>
-                <div className="composer-actions">
-                  <span className="kbd" aria-hidden><kbd>Ctrl</kbd><kbd>↵</kbd></span>
-                  <button className="btn btn-primary" type="submit" disabled={!canSubmit}>
-                    Trace lineage <ArrowRight size={14} />
-                  </button>
-                </div>
+                {!recorded && (
+                  <div className="composer-actions">
+                    <span className="kbd" aria-hidden><kbd>Ctrl</kbd><kbd>↵</kbd></span>
+                    <button className="btn btn-primary" type="submit" disabled={!canSubmit}>
+                      Trace lineage <ArrowRight size={14} />
+                    </button>
+                  </div>
+                )}
               </div>
             </form>
             {submitError && <p className="error" role="alert"><TriangleAlert size={14} /> {submitError}</p>}
 
             <div className="suggest">
-              <h2>Try a demo claim</h2>
+              <h2>{recorded ? "Replay a recorded run" : "Try a demo claim"}</h2>
               <ul>
                 {PRESETS.map((p) => {
                   const Icon = PRESET_ICON[p.id] ?? Split;
@@ -309,26 +344,27 @@ export function LineageApp() {
                 {live ? <LoaderCircle size={15} className="spin" /> : <Split size={15} />}
                 <span title={query}>{query}</span>
                 {answer?.synthetic && <span className="tag synthetic">synthetic</span>}
+                {recordedRun && <span className="tag recorded" title="The agents' model replies were recorded; the graph queries run live"><History size={11} /> {recordedLabel}</span>}
               </div>
               <button className="btn btn-ghost" onClick={reset} title="New trace (N)"><Plus size={14} /> <span>New trace</span> <span className="kbd" aria-hidden><kbd>N</kbd></span></button>
             </div>
             {submitError && <p className="error" role="alert"><TriangleAlert size={14} /> {submitError}</p>}
 
             <div className="stage">
-              {analysis?.status === "error" ? (
-                <div className="empty-note" role="alert"><TriangleAlert size={16} /> An agent failed: {analysis.error}</div>
+              {view?.status === "error" ? (
+                <div className="empty-note" role="alert"><TriangleAlert size={16} /> An agent failed: {view.error}</div>
               ) : lineage && lineage.claims.length > 0 ? (
                 <LineageGraph key={lineage.focusId} view={lineage} whatTheGraphDid={answer?.whatTheGraphDid} />
-              ) : analysis?.status === "done" && answers.length === 0 ? (
+              ) : view?.status === "done" && answers.length === 0 ? (
                 <div className="empty-note">No checkable claim was found in that text.</div>
               ) : (
-                <Pipeline agents={analysis?.agents ?? null} live={live} />
+                <Pipeline agents={view?.agents ?? null} live={live} />
               )}
               {lineageError && <p className="error" style={{ padding: "0 18px 18px" }}>{lineageError}</p>}
             </div>
 
             <div className="lower">
-              <AgentTrace agents={analysis?.agents ?? null} live={live} />
+              <AgentTrace agents={view?.agents ?? null} live={live} recordedLabel={recordedRun ? recordedLabel : undefined} />
               {answers.length > 0 ? (
                 <AnswerPanel answers={answers} active={active} onSelect={setActive} revealDelay={reveal} />
               ) : (
@@ -350,7 +386,12 @@ export function LineageApp() {
 
       <footer className="footer">
         <div className="wrap">
-          <span><Database size={12} /> Every answer is computed live from FalkorDB. Verdicts are derived by traversal, never stored as truth.</span>
+          <span>
+            <Database size={12} />{" "}
+            {recorded
+              ? "Agent steps are recorded runs. The lineage graph and its verdicts are queried live from FalkorDB on every view."
+              : "Every answer is computed live from FalkorDB. Verdicts are derived by traversal, never stored as truth."}
+          </span>
           <span>Graph Hacks 2026</span>
         </div>
       </footer>

@@ -497,7 +497,7 @@ a.row:hover .p svg { color: var(--text); transform: translate(1px, -1px); }
   .hero h1 { font-size: 36px; }
   .hero .lede { font-size: 15px; margin-bottom: 24px; }
   .brand small { display: none; }
-  .pill.mode.local { display: none; }
+  .pill.mode { display: none; }
   .verdict { flex-wrap: wrap; }
   .v-syn { margin-left: 48px; }
   .composer-foot { flex-wrap: wrap; }
@@ -507,6 +507,10 @@ a.row:hover .p svg { color: var(--text); transform: translate(1px, -1px); }
   .pipe-row { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
   .pipe-step:nth-child(2)::after { display: none; }
   .bar .btn span { display: none; }
+  /* The claim keeps its own line; tags (synthetic, recorded run) wrap below it. */
+  .bar .q { flex-wrap: wrap; row-gap: 6px; }
+  .bar .q > span:not(.tag) { flex: 1 1 calc(100% - 26px); }
+  .bar .q .tag.recorded { white-space: normal; height: auto; min-height: 20px; padding: 2px 7px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

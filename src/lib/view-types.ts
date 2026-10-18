@@ -5,7 +5,15 @@ import type { ViewClaim, ViewEdge, ViewOrigin } from "@/graph/queries";
 export type { Answer };
 
 export type Health =
-  | { ok: true; empty: boolean; counts: { claims: number; factChecks: number; withEmbedding: number }; mode: "local" | "recorded"; model: string }
+  | {
+      ok: true;
+      empty: boolean;
+      counts: { claims: number; factChecks: number; withEmbedding: number };
+      mode: "local" | "recorded";
+      model: string;
+      /** Recorded mode only: when and with which model the runs were recorded, and preset id -> analysis id for each run loaded in the graph. */
+      recorded: { on: string; model: string; runs: Record<string, string> } | null;
+    }
   | { ok?: false; error: string; graphDown?: boolean };
 
 export interface AgentRow {
