@@ -218,3 +218,9 @@ export async function addFinding(f: {
   );
   return id;
 }
+
+/** Remove one analysis's trace (used before re-running a recorded run that stopped half way). */
+export async function clearAnalysis(analysisId: string) {
+  await run(`MATCH (:AgentRun {analysis_id: $analysisId})-[:FOUND]->(f:Finding) DETACH DELETE f`, { analysisId });
+  await run(`MATCH (a:AgentRun {analysis_id: $analysisId}) DETACH DELETE a`, { analysisId });
+}

@@ -7,6 +7,7 @@
 //   4. closes its AgentRun with status, provider, model and cache use.
 // The UI replays the trace by reading the same nodes.
 
+import { config } from "@/lib/config";
 import { read } from "@/lib/db";
 import { addFinding, finishAgentRun, startAgentRun } from "@/graph/writes";
 
@@ -25,7 +26,8 @@ export async function runAgent<T>(
   opts: { analysisId: string; agent: AgentName; seq: number; method: "llm" | "rule-based" },
   body: (ctx: AgentContext) => Promise<T>,
 ): Promise<T> {
-  const runId = await startAgentRun({ ...opts, mode: "live" });
+  // In recorded mode the model replies are replayed from data/recorded/; everything else runs live.
+  const runId = await startAgentRun({ ...opts, mode: config.mode === "recorded" ? "recorded" : "live" });
   const providers: { provider: string; model: string; cached: boolean }[] = [];
   const ctx: AgentContext = {
     analysisId: opts.analysisId,

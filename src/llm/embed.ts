@@ -2,7 +2,7 @@
 // vectors from different models are not comparable, so there is no fallback provider.
 
 import { config } from "@/lib/config";
-import { cacheGet, cachePut, hashKey } from "./cache";
+import { cacheGet, cachePut, hashKey, offline } from "./cache";
 import { type RunBudget, withBackoff } from "./budget";
 
 export class EmbeddingError extends Error {
@@ -30,6 +30,7 @@ export async function embed(text: string, budget: RunBudget): Promise<{ vector: 
   const key = embeddingCacheKey(text);
   const hit = await cacheGet<number[]>("embed", key);
   if (hit && hit.length === dim) return { vector: hit, cached: true };
+  if (offline()) throw new EmbeddingError("This text has no recorded embedding, and recorded mode never calls the model.");
 
   if (!apiKey) throw new EmbeddingError("No embedding API key (EMBEDDING_API_KEY or GEMINI_API_KEY) is set (Gate 1).");
   await budget.beforeEmbedCall();

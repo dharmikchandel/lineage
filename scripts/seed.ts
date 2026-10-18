@@ -3,6 +3,8 @@
 // pnpm seed --embed -> Gate 1 only: compute missing seed embeddings (asks first, prints an estimate),
 //                            then save them to data/seed/embeddings.json so reseeding is free.
 // pnpm seed --reset -> delete the graph first (asks first).
+// In recorded mode (LINEAGE_MODE=recorded) `pnpm seed` also replays the recorded preset runs
+// from data/recorded/ (still NO API calls), so one command makes a deployment ready.
 
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -16,6 +18,7 @@ import { addFactCheck, addOrigin, addSighting, linkMutation, upsertClaim, upsert
 import type { DebunkBasis, FactCheckVerdict, MutationType, PublisherKind } from "@/domain/types";
 import { RunBudget } from "@/llm/budget";
 import { embed } from "@/llm/embed";
+import { readManifest, replayPresets } from "@/recorded";
 
 const SEED_DIR = path.join(process.cwd(), "data", "seed");
 const EMBEDDINGS_FILE = path.join(SEED_DIR, "embeddings.json");
@@ -186,6 +189,12 @@ async function main() {
 
   const counts = await graphCounts();
   console.log(`done: ${counts.claims} claims, ${counts.factChecks} fact-checks, ${counts.withEmbedding} with embeddings`);
+  if (config.mode === "recorded") {
+    const manifest = await readManifest();
+    if (!manifest) throw new Error("Recorded mode needs data/recorded/manifest.json (made by pnpm record).");
+    console.log(`loading recorded runs (${manifest.model}, ${manifest.recordedOn}):`);
+    await replayPresets(manifest, console.log);
+  }
   const stillMissing = allClaims.filter((c) => embeddings.vectors[c.id]?.textHash !== textHash(c.text));
   if (stillMissing.length) {
     console.log(`NOTE: ${stillMissing.length} seed claim(s) have no embedding, so Q1 cannot find them yet. After Gate 1: pnpm seed --embed`);

@@ -8,7 +8,7 @@
 
 import { z } from "zod";
 import { config } from "@/lib/config";
-import { cacheGet, cachePut, hashKey } from "./cache";
+import { cacheGet, cachePut, hashKey, offline } from "./cache";
 import { type RunBudget, BudgetExceededError, withBackoff } from "./budget";
 
 export interface LlmResult<T> {
@@ -132,6 +132,9 @@ export async function generateJson<S extends z.ZodType>(opts: {
     if (hit !== null) {
       const parsed = opts.schema.safeParse(hit);
       if (parsed.success) return { data: parsed.data, provider: p.name, model: p.model, cached: true };
+    }
+    if (offline()) {
+      throw new LlmError(`${opts.task}: this input has no recorded reply, and recorded mode never calls the model. Run Lineage locally to analyse new text.`);
     }
 
     try {
