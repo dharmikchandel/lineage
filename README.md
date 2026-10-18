@@ -271,6 +271,10 @@ Budgets live in `.env` (`MAX_LLM_CALLS_PER_RUN`, `MAX_LLM_CALLS_PER_DAY`, `MAX_T
 
 The seed stories ([`data/seed/`](data/seed)) are built from public fact-checks: PolitiFact, FactCheck.org, ThatsNonsense, EarthSky, AFP, Check Your Fact, Tes, and Snopes as quoted by news coverage. Where sources conflict (when the 2014 hoax was posted, which site published the 2017 version, when the Gates attribution began), both versions are stored with a note rather than picking one. Nothing that could not be cited was seeded.
 
+## Architecture
+
+One Next.js app, split by module rather than by process. The core (`src/graph`, `src/domain`, `src/agents`, `src/llm`) has no framework code, so the same pipeline runs from the CLI and from the API. The UI talks to it only through four HTTP routes: `/api/analyze`, `/api/analysis/[id]`, `/api/lineage/[claimId]` and `/api/health`. FalkorDB is the only state.
+
 ## Project layout
 
 ```
@@ -284,6 +288,15 @@ scripts/         preflight, schema, seed, analyze, query, record
 data/            seed stories, seed embeddings, recorded model replies
 tests/           unit tests for the rules
 ```
+
+## What's next
+
+Today the graph holds two hand-verified hoax families, so most new claims come back "Unknown". The next step is to let the graph grow itself from real, cited evidence, never from LLM guesses:
+
+- **A Researcher agent.** When the answer is Unknown, it queries Google's Fact Check Tools API (the ClaimReview index fact-checkers publish) and adds each match as a `FactCheck` node with its real URL, publisher, date and rating, plus a `Claim` the Linker can connect to. Every later variant then inherits from it.
+- **Coverage as context, not evidence.** News articles about a claim become `Sighting`s (publisher, date, URL, our own paraphrase) for the timeline and spread. They never count towards a verdict, because a viral hoax has more articles than its debunk.
+- **Proposed bases, reviewed.** A rating says *false*, not *why*. The agent proposes a basis, marked `asserted_by: researcher` with low confidence, until someone confirms it.
+- **Scale:** store a family id on write instead of running WCC over the whole graph, run agents on a job queue, and add keyword search next to the vector search for better recall.
 
 ## AI use
 
