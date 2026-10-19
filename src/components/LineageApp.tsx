@@ -280,7 +280,9 @@ export function LineageApp() {
                 placeholder={recorded ? "This public demo replays recorded runs. Pick a demo claim below." : "NASA confirms Earth will go dark for 15 days in November…"}
                 onChange={(e) => {
                   setText(e.target.value);
-                  setPresetId(null);
+                  // A reworded preset is still a made-up test input, so it stays labelled
+                  // synthetic; clearing the box is what makes it the user's own text.
+                  if (!e.target.value.trim()) setPresetId(null);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
