@@ -76,6 +76,9 @@ export async function read<T = Record<string, unknown>>(cypher: string, params: 
       dbPromise = null;
       throw new GraphUnavailableError(err);
     }
+    // FalkorDB rejects RO_QUERY on a graph key that does not exist yet (fresh database, before
+    // `pnpm seed`). A graph that was never created is an empty graph, so read it as one.
+    if (/empty key/i.test(err instanceof Error ? err.message : "")) return [];
     if (/unknown command 'GRAPH\./i.test(err instanceof Error ? err.message : "")) throw new NotFalkorDBError();
     throw err;
   }

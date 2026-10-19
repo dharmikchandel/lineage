@@ -53,7 +53,7 @@ async function main() {
   try {
     const counts = await graphCounts();
     ok(`reachable at ${config.falkor.host}:${config.falkor.port}, graph "${config.falkor.graph}"`);
-    if (counts.claims === 0) warn("graph is EMPTY: run `pnpm schema && pnpm seed`");
+    if (counts.claims === 0) warn("graph is EMPTY: run `pnpm seed` (it creates the schema too)");
     else ok(`${counts.claims} claims, ${counts.factChecks} fact-checks, ${counts.withEmbedding} with embeddings`);
     const dim = await vectorIndexDimension();
     if (dim === null) {
