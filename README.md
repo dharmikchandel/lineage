@@ -9,7 +9,7 @@ Built for **Graph Hacks 2026 (WeMakeDevs × FalkorDB)**, solo entry.
 | | |
 |---|---|
 | **Tracks** | **Track 1: Agents That Act on Connected Data** · **Track 2: Agent Memory and Coordination** |
-| **Live demo** | _URL added at deploy_ (recorded mode, see [Modes](#two-modes-local-and-recorded)) |
+| **Live demo** | [lineage.dharmikchandel.tech](https://lineage.dharmikchandel.tech) (recorded mode, see [Modes](#two-modes-local-and-recorded)) |
 | **Demo video** | _link added at submission_ |
 | **Stack** | FalkorDB 4.22 · Next.js 16 · TypeScript · Gemini (agents) · gemini-embedding-001 (vectors) |
 
@@ -215,7 +215,7 @@ Agents never pass objects to each other. Each opens an `AgentRun`, reads the pre
 | Graph queries | live | live: Q1 at load time; Q2-Q6 and Q4 on every view |
 | Badge | model name | "Recorded run: <date>, <model>" |
 
-The public deployment runs in recorded mode because Gemini's free tier does not allow serving end users in the EEA, Switzerland or the UK, and public traffic would drain a personal quota. Recorded mode needs **no API key**, so it is also the quickest way to try Lineage locally.
+The [public deployment](https://lineage.dharmikchandel.tech) runs in recorded mode because Gemini's free tier does not allow serving end users in the EEA, Switzerland or the UK, and public traffic would drain a personal quota. Recorded mode needs **no API key**, so it is also the quickest way to try Lineage locally.
 
 **Privacy:** in local mode your text goes to Google Gemini. On the free tier Google may use submitted text to improve its products, so do not paste private information.
 
