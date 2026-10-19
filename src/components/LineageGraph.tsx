@@ -16,8 +16,8 @@ import { fmtDate } from "./AnswerPanel";
 
 const COL_W = 216;
 const NODE_W = 160;
-const NODE_H = 116;
-const LANE_H = 150;
+const NODE_H = 126;
+const LANE_H = 160;
 const TOP = 30;
 const COL_STAGGER = 110; // ms between columns appearing
 const PULSE_MS = 900;
@@ -259,10 +259,10 @@ export function LineageGraph({ view, whatTheGraphDid }: { view: LineageView; wha
                       <path d="M 0 0 L 10 5 L 0 10 z" fill="rgb(255 255 255 / 0.4)" />
                     </marker>
                     <marker id="arr-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6a3d" />
+                      <path d="M 0 0 L 10 5 L 0 10 z" style={{ fill: "var(--ember)" }} />
                     </marker>
                     <marker id="arr-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f5b544" />
+                      <path d="M 0 0 L 10 5 L 0 10 z" style={{ fill: "var(--amber)" }} />
                     </marker>
                   </defs>
                   {view.edges.map((e) => {
